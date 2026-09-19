@@ -1,25 +1,35 @@
+ # importação de biblioteca
+import pandas as pd
 import streamlit as st
 import json
 import requests
 
-st.set_page_config(layout="wide")
+# ajustes o layout da pagina
+st.set_page_config(layout='wide')
 
-with open('pokemon_index.json', 'r', encoding='utf-8') as arquivo:
+#lendo o arquivo json pokemon_index
+with open('pokemon_index.json','r',encoding='utf-8') as arquivo:
     nomes_pokemons = json.load(arquivo)
 
-nome = st.selectbox('Escolha um Pokemon', nomes_pokemons.values())
+#criando uma caixa seletora onde apessoa pode escolher o pokemon pelo nome
+nome = st.selectbox('Escolhar seu pokemon;',nomes_pokemons.values())
 
+#Link do API
 url = f'https://pokeapi.co/api/v2/pokemon/{nome}'
+
+#Usando todas as informações do API
 dados_pokemon = requests.get(url).json()
 
-col1, col2, col3 = st.columns(3)
+#Vamos cria colunas no site
+col1,col2,col3 = st.columns(3)
 
-peso = dados_pokemon['weight'] /10
-altura = dados_pokemon['height'] /10
-imc = round(peso / (altura ** 2))
+peso = dados_pokemon['weight']/10
+altura = dados_pokemon['height']/10
+imc = round(peso / (altura **2))
 
+#Pegando a imagem do pokemon
 with col1:
-    st.image(dados_pokemon['sprites']['front_default'], width=400)
+    st.image(dados_pokemon['sprites']['front_default'],width=550)
     st.write('Normal')
 
 with col2:
@@ -27,25 +37,27 @@ with col2:
     st.audio(dados_pokemon['cries']['legacy'])
 
 with col3:
-    st.image(dados_pokemon['sprites']['front_shiny'], width=400)
+    st.image(dados_pokemon['sprites']['front_shiny'],width=550)
     st.write('Shiny')
 
-col1, col2, col3 = st.columns(3)
+
+#Recriando as colunas para informações de peso,altura e IMC
+col1,col2,col3 = st.columns(3)
+
 with col1:
-    st.metric('Altura', f'{altura} M')
+    st.metric(f'O peso do pokemon é',peso)
 
 with col2:
-    st.metric('IMC', imc)
+    st.metric(f'A altura do pokemon é:',altura)
 
 with col3:
-    st.metric('Peso', f'{peso} KG')
+    st.metric(f'O IMC é:',imc)
 
+status,tipo,hablidades,locais = st.tabs(['Status','Tipos','Hablidades','Locais'])
 
-tipos, status, locais, habilidades = st.tabs(['Tipos', 'Status', 'Locais', 'Habilidades'])
-
-with tipos:
+with tipo:
     for i in dados_pokemon['types']:
-        st.markdown(f'- {i['type']['name']}')
+        st.markdown(f'-{i['type']['name']}')
 
 with status:
     hp, ataque, defesa, ataque_esp, defesa_esp, velocidade = st.columns(6)
@@ -65,8 +77,8 @@ with status:
 with locais:
     locais = requests.get(dados_pokemon['location_area_encounters']).json()
     for local in locais:
-        st.markdown(f'- {local['location_area']['name']}')
+        st.markdown(f'-{local['location_area']['name']}')
 
-with habilidades:
-    for abilidade in dados_pokemon['abilities']:
-        st.markdown(f'- {abilidade['ability']['name']}')
+with hablidades:
+    for hablidades in dados_pokemon['abilities']:
+        st.markdown(f'-{hablidades['ability']['name']}')
